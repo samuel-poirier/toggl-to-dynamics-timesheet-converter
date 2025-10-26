@@ -6,7 +6,7 @@ allow specifying the project name, project task and role.
 
 ## How to run
 
-Configure your project mapping file to specify which project name, project
+1. Configure your project mapping file to specify which project name, project
 task and role for each Toggl project used in the conversion.
 
 Example `mapping.json` file
@@ -28,8 +28,8 @@ Example `mapping.json` file
 }
 ```
 
-You can run program using the following arguments to specify the mapping,
-input and output csv file:
+2. Export a Toggl weekly timesheet, go to track.toggl.com/report, open the detailed report view and export it to CSV.
+3. You can run program using the following arguments to specify the mapping, input and output csv file:
 
 ```bash
 go run main.go -m mapping.json -i toggl.csv -o dynamics.csv
