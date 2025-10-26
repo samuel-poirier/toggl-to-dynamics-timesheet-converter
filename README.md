@@ -28,7 +28,7 @@ Example `mapping.json` file
 }
 ```
 
-2. Export a Toggl weekly timesheet, go to track.toggl.com/report, open the detailed report view and export it to CSV.
+2. Export a Toggl weekly timesheet, go to [Toggl Track Reports](https://track.toggl.com/reports), open the detailed report view and export it to CSV.
 3. You can run program using the following arguments to specify the mapping, input and output csv file:
 
 ```bash
