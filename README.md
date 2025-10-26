@@ -28,6 +28,8 @@ Example `mapping.json` file
 }
 ```
 
+_Note: if during the import process you are getting "A duplicate lookup reference was found." error from a project task, you can replace the project task value with its ID (GUID format) in the mapping.json file._
+
 2. Export a Toggl weekly timesheet, go to [Toggl Track Reports](https://track.toggl.com/reports), open the detailed report view and export it to CSV.
 3. You can run program using the following arguments to specify the mapping, input and output csv file:
 
