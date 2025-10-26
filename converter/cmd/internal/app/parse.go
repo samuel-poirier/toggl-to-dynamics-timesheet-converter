@@ -9,7 +9,7 @@ import (
 )
 
 type MappingRule struct {
-	ProjectName string `json:"projectName"`
+	ProjectName string `json:"project"`
 	ProjectTask string `json:"projectTask"`
 	Role        string `json:"role"`
 }
