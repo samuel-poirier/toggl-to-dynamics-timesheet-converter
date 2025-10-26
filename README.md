@@ -6,7 +6,7 @@ allow specifying the project name, project task and role.
 
 ## How to run
 
-Configure your project mapping file to specify which project name, project 
+Configure your project mapping file to specify which project name, project
 task and role for each Toggl project used in the conversion.
 
 Example `mapping.json` file
