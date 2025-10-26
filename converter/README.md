@@ -1,0 +1,36 @@
+# Introduction
+
+This small go program is used to convert a Toggl CSV export timesheet to the
+Microsoft Dynamics CSV timesheet format using a custom mapping.json file to
+allow specifying the project name, project task and role.
+
+## How to run
+
+Configure your project mapping file to specify which project name, project 
+task and role for each Toggl project used in the conversion.
+
+Example `mapping.json` file
+
+```json
+{
+  "projects": {
+    "project1": {
+      "project": "Dynamics Project 1",
+      "projectTask": "Feature Development",
+      "role": "Senior Developer"
+    },
+    "project2": {
+      "project": "Dynamics Project 2",
+      "projectTask": "Sprint Planning",
+      "role": "Project Manager"
+    }
+  }
+}
+```
+
+You can run program using the following arguments to specify the mapping,
+input and output csv file:
+
+```bash
+go run main.go -m mapping.json -i toggl.csv -o dynamics.csv
+```
