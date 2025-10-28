@@ -3,6 +3,7 @@ package app
 import (
 	"bufio"
 	"fmt"
+	"log/slog"
 	"math"
 	"os"
 )
@@ -25,13 +26,39 @@ func (a *App) Export(config *AppConfig, togglExportLines []TogglTimeEntry) error
 		return err
 	}
 
+	linesGroupedMap := make(map[string]TogglTimeEntry)
+	minutesPerGroupMap := make(map[string]float64)
+
 	for _, line := range togglExportLines {
-		mappingRule, ok := config.Mapping.Projects[line.project]
-		if !ok {
-			return fmt.Errorf("faild to find project [%s] from mapping rules", line.project)
+		key := line.GetGroupingKey()
+
+		linesGroupedMap[key] = line
+		minutesDuration := line.stopDateTime.Sub(line.startDateTime).Minutes()
+
+		if value, ok := minutesPerGroupMap[key]; ok {
+			minutesPerGroupMap[key] = value + minutesDuration
+		} else {
+			minutesPerGroupMap[key] = minutesDuration
 		}
 
-		minutesDuration := line.stopDateTime.Sub(line.startDateTime).Minutes()
+	}
+
+	totalWeekMinutes := 0
+	for key, line := range linesGroupedMap {
+		mappingRule, ok := config.Mapping.Projects[line.project]
+
+		if !ok {
+			return fmt.Errorf("failed to find project [%s] from mapping rules", line.project)
+		}
+
+		minutesDuration, ok := minutesPerGroupMap[key]
+
+		if !ok {
+			return fmt.Errorf("failed to find calculated minutes from grouped lines for project [%s]", line.project)
+		}
+
+		totalWeekMinutes += int(minutesDuration)
+
 		minutesDurationString := fmt.Sprintf("%.2f", roundToNearest15(minutesDuration))
 		_, err := writer.WriteString(
 			"Project Service," +
@@ -55,6 +82,9 @@ func (a *App) Export(config *AppConfig, togglExportLines []TogglTimeEntry) error
 
 	// Flush the buffer to ensure all data is written to the file
 	err = writer.Flush()
+
+	a.logger.Info("weekly total hours", slog.Any("hours", totalWeekMinutes/60))
+
 	return nil
 }
 

@@ -24,6 +24,10 @@ type TogglTimeEntry struct {
 	stopDateTime  time.Time
 }
 
+func (e TogglTimeEntry) GetGroupingKey() string {
+	return e.startDateTime.Format("2006-01-02") + e.project + e.description
+}
+
 func (a *App) LoadTogglCsvExportLines(filePath string) ([]TogglTimeEntry, error) {
 	file, err := os.Open(filePath) // Replace "example.txt" with your file path
 
