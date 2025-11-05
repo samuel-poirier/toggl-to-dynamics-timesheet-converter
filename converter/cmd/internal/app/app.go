@@ -24,6 +24,28 @@ type TogglTimeEntry struct {
 	stopDateTime  time.Time
 }
 
+func NewTogglTimeEntry(
+	description string,
+	duration time.Duration,
+	member,
+	email,
+	project,
+	tags string,
+	startDateTime time.Time,
+	stopDateTime time.Time,
+) TogglTimeEntry {
+	return TogglTimeEntry{
+		description,
+		duration,
+		member,
+		email,
+		project,
+		tags,
+		startDateTime,
+		stopDateTime,
+	}
+}
+
 func (e TogglTimeEntry) GetGroupingKey() string {
 	return e.startDateTime.Format("2006-01-02") + e.project + e.description
 }
@@ -76,16 +98,16 @@ func (a *App) LoadTogglCsvExportLines(filePath string) ([]TogglTimeEntry, error)
 			return nil, fmt.Errorf("failed to parse end date time with value %s on line %v", stopDateTimeString, lineCount)
 		}
 
-		entry := TogglTimeEntry{
-			description:   firstN(lineSplit[0], 100),
-			duration:      duration,
-			member:        lineSplit[2],
-			email:         lineSplit[3],
-			project:       lineSplit[4],
-			tags:          lineSplit[5],
-			startDateTime: startDateTime,
-			stopDateTime:  stopDateTime,
-		}
+		entry := NewTogglTimeEntry(
+			firstN(lineSplit[0], 100),
+			duration,
+			lineSplit[2],
+			lineSplit[3],
+			lineSplit[4],
+			lineSplit[5],
+			startDateTime,
+			stopDateTime,
+		)
 
 		entries = append(entries, entry)
 	}

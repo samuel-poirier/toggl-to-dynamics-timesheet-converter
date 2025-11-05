@@ -8,12 +8,6 @@ import (
 	"os"
 )
 
-type MappingRule struct {
-	ProjectName string `json:"project"`
-	ProjectTask string `json:"projectTask"`
-	Role        string `json:"role"`
-}
-
 type Mapping struct {
 	Projects map[string]MappingRule `json:"projects"`
 }

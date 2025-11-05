@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"log/slog"
-	"math"
 	"os"
 )
 
@@ -59,21 +58,8 @@ func (a *App) Export(config *AppConfig, togglExportLines []TogglTimeEntry) error
 
 		totalWeekMinutes += int(minutesDuration)
 
-		minutesDurationString := fmt.Sprintf("%.2f", roundToNearest15(minutesDuration))
-		_, err := writer.WriteString(
-			"Project Service," +
-				mappingRule.ProjectName + "," +
-				mappingRule.ProjectTask + "," +
-				mappingRule.Role + "," +
-				"Work," +
-				"," +
-				"," +
-				"Draft," +
-				line.startDateTime.Format("1/02/2006") + "," +
-				minutesDurationString + "," +
-				"," +
-				line.description + "\"" +
-				"\n")
+		lineString := mappingRule.GetCsvLineString(line, minutesDuration)
+		_, err := writer.WriteString(lineString)
 
 		if err != nil {
 			return err
@@ -86,15 +72,4 @@ func (a *App) Export(config *AppConfig, togglExportLines []TogglTimeEntry) error
 	a.logger.Info("weekly total hours", slog.Any("hours", totalWeekMinutes/60))
 
 	return nil
-}
-
-func roundToNearest15(minutes float64) float64 {
-	interval := 15.0
-	val := math.Round(minutes/interval) * interval
-
-	if val <= interval {
-		val = interval
-	}
-
-	return val
 }
