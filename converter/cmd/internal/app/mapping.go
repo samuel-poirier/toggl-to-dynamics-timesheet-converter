@@ -21,10 +21,10 @@ func (mappingRule MappingRule) GetCsvLineString(line TogglTimeEntry, minutesDura
 		"," +
 		"," +
 		"Draft," +
-		line.startDateTime.Format("1/02/2006") + "," +
+		line.StartDateTime.Format("1/02/2006") + "," +
 		minutesDurationString + "," +
-		line.description + "\"," +
-		line.description + "\"" +
+		line.Description + "\"," +
+		line.Description + "\"" +
 		"\n"
 }
 

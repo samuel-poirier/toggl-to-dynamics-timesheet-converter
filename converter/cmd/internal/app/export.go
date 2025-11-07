@@ -32,7 +32,7 @@ func (a *App) Export(config *AppConfig, togglExportLines []TogglTimeEntry) error
 		key := line.GetGroupingKey()
 
 		linesGroupedMap[key] = line
-		minutesDuration := line.stopDateTime.Sub(line.startDateTime).Minutes()
+		minutesDuration := line.StopDateTime.Sub(line.StartDateTime).Minutes()
 
 		if value, ok := minutesPerGroupMap[key]; ok {
 			minutesPerGroupMap[key] = value + minutesDuration
@@ -44,16 +44,16 @@ func (a *App) Export(config *AppConfig, togglExportLines []TogglTimeEntry) error
 
 	totalWeekMinutes := 0
 	for key, line := range linesGroupedMap {
-		mappingRule, ok := config.Mapping.Projects[line.project]
+		mappingRule, ok := config.Mapping.Projects[line.Project]
 
 		if !ok {
-			return fmt.Errorf("failed to find project [%s] from mapping rules", line.project)
+			return fmt.Errorf("failed to find project [%s] from mapping rules", line.Project)
 		}
 
 		minutesDuration, ok := minutesPerGroupMap[key]
 
 		if !ok {
-			return fmt.Errorf("failed to find calculated minutes from grouped lines for project [%s]", line.project)
+			return fmt.Errorf("failed to find calculated minutes from grouped lines for project [%s]", line.Project)
 		}
 
 		totalWeekMinutes += int(minutesDuration)
@@ -68,6 +68,10 @@ func (a *App) Export(config *AppConfig, togglExportLines []TogglTimeEntry) error
 
 	// Flush the buffer to ensure all data is written to the file
 	err = writer.Flush()
+
+	if err != nil {
+		return err
+	}
 
 	a.logger.Info("weekly total hours", slog.Any("hours", totalWeekMinutes/60))
 

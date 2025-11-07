@@ -14,14 +14,14 @@ type App struct {
 }
 
 type TogglTimeEntry struct {
-	description   string
-	duration      time.Duration
-	member        string
-	email         string
-	project       string
-	tags          string
-	startDateTime time.Time
-	stopDateTime  time.Time
+	Description   string
+	Duration      time.Duration
+	Member        string
+	Email         string
+	Project       string
+	Tags          string
+	StartDateTime time.Time
+	StopDateTime  time.Time
 }
 
 func NewTogglTimeEntry(
@@ -47,7 +47,7 @@ func NewTogglTimeEntry(
 }
 
 func (e TogglTimeEntry) GetGroupingKey() string {
-	return e.startDateTime.Format("2006-01-02") + e.project + e.description
+	return e.StartDateTime.Format("2006-01-02") + e.Project + e.Description
 }
 
 func (a *App) LoadTogglCsvExportLines(filePath string) ([]TogglTimeEntry, error) {
@@ -76,43 +76,55 @@ func (a *App) LoadTogglCsvExportLines(filePath string) ([]TogglTimeEntry, error)
 
 		line := scanner.Text() // Get the current line as a string
 		line = firstN(line, len(line)-1)
-		lineSplit := strings.Split(line, "\",\"")
 
-		duration, err := parseDuration(lineSplit[1])
-
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse duration with value %s on line %v", lineSplit[1], lineCount)
-		}
-
-		startDateTimeString := fmt.Sprintf("%s %s", lineSplit[6], lineSplit[7])
-		startDateTime, err := time.Parse("2006-01-02 15:04:05", startDateTimeString)
+		entry, err := ParseLineToTogglTimeEntry(line, lineCount)
 
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse start date time with value %s on line %v", startDateTimeString, lineCount)
+			return nil, err
 		}
-
-		stopDateTimeString := fmt.Sprintf("%s %s", lineSplit[8], lineSplit[9])
-		stopDateTime, err := time.Parse("2006-01-02 15:04:05", stopDateTimeString)
-
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse end date time with value %s on line %v", stopDateTimeString, lineCount)
-		}
-
-		entry := NewTogglTimeEntry(
-			firstN(lineSplit[0], 100),
-			duration,
-			lineSplit[2],
-			lineSplit[3],
-			lineSplit[4],
-			lineSplit[5],
-			startDateTime,
-			stopDateTime,
-		)
 
 		entries = append(entries, entry)
 	}
 
 	return entries, nil
+}
+
+func ParseLineToTogglTimeEntry(line string, lineCount int) (TogglTimeEntry, error) {
+	// trim first and last \"
+	line = strings.Trim(line, "\"")
+	lineSplit := strings.Split(line, "\",\"")
+
+	duration, err := parseDuration(lineSplit[1])
+
+	if err != nil {
+		return TogglTimeEntry{}, fmt.Errorf("failed to parse duration with value %s on line %v", lineSplit[1], lineCount)
+	}
+
+	startDateTimeString := fmt.Sprintf("%s %s", lineSplit[6], lineSplit[7])
+	startDateTime, err := time.Parse("2006-01-02 15:04:05", startDateTimeString)
+
+	if err != nil {
+		return TogglTimeEntry{}, fmt.Errorf("failed to parse start date time with value %s on line %v", startDateTimeString, lineCount)
+	}
+
+	stopDateTimeString := fmt.Sprintf("%s %s", lineSplit[8], lineSplit[9])
+	stopDateTime, err := time.Parse("2006-01-02 15:04:05", stopDateTimeString)
+
+	if err != nil {
+		return TogglTimeEntry{}, fmt.Errorf("failed to parse end date time with value %s on line %v", stopDateTimeString, lineCount)
+	}
+
+	entry := NewTogglTimeEntry(
+		firstN(lineSplit[0], 100),
+		duration,
+		lineSplit[2],
+		lineSplit[3],
+		lineSplit[4],
+		lineSplit[5],
+		startDateTime,
+		stopDateTime,
+	)
+	return entry, nil
 }
 
 func firstN(str string, n int) string {
