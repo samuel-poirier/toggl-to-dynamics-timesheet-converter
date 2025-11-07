@@ -75,7 +75,7 @@ func (a *App) LoadTogglCsvExportLines(filePath string) ([]TogglTimeEntry, error)
 		}
 
 		line := scanner.Text() // Get the current line as a string
-		line = firstN(line, len(line)-1)
+		line = FirstN(line, len(line)-1)
 
 		entry, err := ParseLineToTogglTimeEntry(line, lineCount)
 
@@ -115,7 +115,7 @@ func ParseLineToTogglTimeEntry(line string, lineCount int) (TogglTimeEntry, erro
 	}
 
 	entry := NewTogglTimeEntry(
-		firstN(lineSplit[0], 100),
+		FirstN(lineSplit[0], 100),
 		duration,
 		lineSplit[2],
 		lineSplit[3],
@@ -127,12 +127,31 @@ func ParseLineToTogglTimeEntry(line string, lineCount int) (TogglTimeEntry, erro
 	return entry, nil
 }
 
-func firstN(str string, n int) string {
+func FirstN(str string, n int) string {
 	v := []rune(str)
 	if n >= len(v) {
 		return str
 	}
-	return string(v[:n])
+	width := 0
+	result := []rune{}
+
+	for _, r := range str {
+		w := runeWidth(r)
+		if width+w > n {
+			break
+		}
+		width += w
+		result = append(result, r)
+	}
+	return string(result)
+}
+
+func runeWidth(r rune) int {
+	// Approximation: treat all non-ASCII characters as width 2
+	if r <= 127 {
+		return 1
+	}
+	return 2
 }
 
 func parseDuration(d string) (time.Duration, error) {

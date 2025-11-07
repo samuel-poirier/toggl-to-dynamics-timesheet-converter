@@ -18,4 +18,11 @@ func TestParseLine(t *testing.T) {
 			assert.Equal(t, "test project", entry.Project)
 		}
 	})
+
+	t.Run("FirstN should consider special width character", func(t *testing.T) {
+		//
+		value := "charactère à autre"
+		result := app.FirstN(value, 14)
+		assert.Equal(t, "charactère à", result)
+	})
 }
