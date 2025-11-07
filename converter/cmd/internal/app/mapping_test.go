@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLineStringConvertion(t *testing.T) {
+func TestLineStringConversion(t *testing.T) {
 	t.Run("get line string should return expected format and rounding", func(t *testing.T) {
 		mappingRule := app.MappingRule{
 			ProjectName: "Test Project",
@@ -20,7 +20,7 @@ func TestLineStringConvertion(t *testing.T) {
 		end := start.Add(time.Minute * 5)
 
 		entry := app.NewTogglTimeEntry(
-			"\"Some work done",
+			"Some work done",
 			time.Minute*6,
 			"member",
 			"email",
