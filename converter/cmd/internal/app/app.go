@@ -3,6 +3,7 @@ package app
 import (
 	"bufio"
 	"fmt"
+	"iter"
 	"log/slog"
 	"os"
 	"strings"
@@ -59,25 +60,15 @@ func (a *App) LoadTogglCsvExportLines(filePath string) ([]TogglTimeEntry, error)
 
 	defer file.Close() // Ensure the file is closed when the function exits
 
-	// Create a new scanner to read lines
 	scanner := bufio.NewScanner(file)
 
+	return ParseTogglTimeEntries(scanner)
+}
+
+func ParseTogglTimeEntries(scanner *bufio.Scanner) ([]TogglTimeEntry, error) {
 	entries := make([]TogglTimeEntry, 0)
-	// Iterate over each line
-	lineCount := 0
 
-	for scanner.Scan() {
-
-		lineCount++
-
-		if lineCount == 1 {
-			continue
-		}
-
-		line := scanner.Text() // Get the current line as a string
-		line = FirstN(line, len(line)-1)
-
-		entry, err := ParseLineToTogglTimeEntry(line, lineCount)
+	for entry, err := range iterateParsedEntries(scanner) {
 
 		if err != nil {
 			return nil, err
@@ -87,6 +78,29 @@ func (a *App) LoadTogglCsvExportLines(filePath string) ([]TogglTimeEntry, error)
 	}
 
 	return entries, nil
+}
+
+func iterateParsedEntries(scanner *bufio.Scanner) iter.Seq2[TogglTimeEntry, error] {
+	return func(yield func(TogglTimeEntry, error) bool) {
+		lineCount := 0
+		for scanner.Scan() {
+
+			lineCount++
+
+			if lineCount == 1 {
+				continue
+			}
+
+			line := scanner.Text()
+			line = FirstN(line, len(line)-1)
+
+			entry, err := ParseLineToTogglTimeEntry(line, lineCount)
+
+			if !yield(entry, err) {
+				return
+			}
+		}
+	}
 }
 
 func ParseLineToTogglTimeEntry(line string, lineCount int) (TogglTimeEntry, error) {
