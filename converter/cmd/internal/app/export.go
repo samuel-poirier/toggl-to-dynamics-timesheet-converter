@@ -2,14 +2,10 @@ package app
 
 import (
 	"bufio"
-	"fmt"
-	"log/slog"
 	"os"
 )
 
-const header string = "Time Source,Project,Project Task,Role,Type,Subcontract,Subcontract line,Entry Status,Date,Duration,Description,External Comments"
-
-func (a *App) Export(config *AppConfig, togglExportLines []TogglTimeEntry) error {
+func (a *App) Export(config *AppConfig, dynamicsExportLines []string) error {
 	file, err := os.OpenFile(config.OutputFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
 	if err != nil {
@@ -19,48 +15,9 @@ func (a *App) Export(config *AppConfig, togglExportLines []TogglTimeEntry) error
 	defer file.Close()
 
 	writer := bufio.NewWriter(file)
-	_, err = writer.WriteString(header + "\n")
 
-	if err != nil {
-		return err
-	}
-
-	linesGroupedMap := make(map[string]TogglTimeEntry)
-	minutesPerGroupMap := make(map[string]float64)
-
-	for _, line := range togglExportLines {
-		key := line.GetGroupingKey()
-
-		linesGroupedMap[key] = line
-		minutesDuration := line.StopDateTime.Sub(line.StartDateTime).Minutes()
-
-		if value, ok := minutesPerGroupMap[key]; ok {
-			minutesPerGroupMap[key] = value + minutesDuration
-		} else {
-			minutesPerGroupMap[key] = minutesDuration
-		}
-
-	}
-
-	totalWeekMinutes := 0
-	for key, line := range linesGroupedMap {
-		mappingRule, ok := config.Mapping.Projects[line.Project]
-
-		if !ok {
-			return fmt.Errorf("failed to find project [%s] from mapping rules", line.Project)
-		}
-
-		minutesDuration, ok := minutesPerGroupMap[key]
-
-		if !ok {
-			return fmt.Errorf("failed to find calculated minutes from grouped lines for project [%s]", line.Project)
-		}
-
-		totalWeekMinutes += int(minutesDuration)
-
-		lineString := mappingRule.GetCsvLineString(line, minutesDuration)
-		_, err := writer.WriteString(lineString)
-
+	for _, line := range dynamicsExportLines {
+		_, err := writer.WriteString(line)
 		if err != nil {
 			return err
 		}
@@ -72,8 +29,6 @@ func (a *App) Export(config *AppConfig, togglExportLines []TogglTimeEntry) error
 	if err != nil {
 		return err
 	}
-
-	a.logger.Info("weekly total hours", slog.Any("hours", totalWeekMinutes/60))
 
 	return nil
 }

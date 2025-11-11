@@ -31,7 +31,14 @@ func main() {
 
 	logger.Info("loaded entries", slog.Any("count", len(togglExportLines)))
 
-	err = app.Export(config, togglExportLines)
+	lines, err := app.Transform(config, togglExportLines)
+
+	if err != nil {
+		logger.Error("failed to transform toggl export lines to dynamics lines", slog.Any("error", err))
+		return
+	}
+
+	err = app.Export(config, lines)
 
 	if err != nil {
 		logger.Error("failed to export", slog.Any("error", err))

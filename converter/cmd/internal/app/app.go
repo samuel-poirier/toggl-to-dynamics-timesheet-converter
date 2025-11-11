@@ -52,7 +52,7 @@ func (e TogglTimeEntry) GetGroupingKey() string {
 }
 
 func (a *App) LoadTogglCsvExportLines(filePath string) ([]TogglTimeEntry, error) {
-	file, err := os.Open(filePath) // Replace "example.txt" with your file path
+	file, err := os.Open(filePath)
 
 	if err != nil {
 		return nil, err
@@ -107,6 +107,12 @@ func ParseLineToTogglTimeEntry(line string, lineCount int) (TogglTimeEntry, erro
 	// trim first and last \"
 	line = strings.Trim(line, "\"")
 	lineSplit := strings.Split(line, "\",\"")
+
+	splitLen := len(lineSplit)
+
+	if splitLen != 10 {
+		return TogglTimeEntry{}, fmt.Errorf("failed to parse line, expected 10 item split, but found %v on line %v", splitLen, lineCount)
+	}
 
 	duration, err := parseDuration(lineSplit[1])
 
